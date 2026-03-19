@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upgrade to Pro - DevPortfolio Analyzer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<nav class="bg-white border-b border-gray-200 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="font-bold text-xl text-blue-600">DevPortfolio</div>
+    <div class="flex items-center gap-4 text-sm font-medium">
+      <a href="/" class="text-gray-700 hover:text-blue-600">Home</a>
+      {% if request.user.is_authenticated %}
+        <a href="/logout/" class="text-gray-700 hover:text-blue-600">Logout</a>
+      {% else %}
+        <a href="/login/" class="text-gray-700 hover:text-blue-600">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-4xl mx-auto mt-10 px-4">
+  <div class="bg-white shadow-lg rounded-lg p-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Upgrade to Pro</h1>
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <p class="text-yellow-800 font-medium">
+          {% if user_profile.free_usage_count >= 1 %}
+            🎯 You've used your free analysis (1/1)
+          {% else %}
+            🎯 You have {{ user_profile.free_usage_remaining }} free analysis left
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Free Plan -->
+      <div class="border border-gray-200 rounded-lg p-6">
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Free Plan</h3>
+        <p class="text-gray-600 mb-4">Perfect for trying out the tool</p>
+        <div class="text-3xl font-bold text-gray-900 mb-4">₹0<span class="text-lg font-normal text-gray-600">/month</span></div>
+        <ul class="space-y-3 mb-6">
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-700">1 free GitHub analysis</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-700">Basic developer score</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-gray-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span class="text-gray-400">No PDF downloads</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-gray-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span class="text-gray-400">No advanced insights</span>
+          </li>
+        </ul>
+        <div class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-center font-medium">
+          {% if user_profile.free_usage_count >= 1 %}
+            Limit Reached
+          {% else %}
+            Your Current Plan
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Pro Plan -->
+      <div class="border-2 border-blue-500 rounded-lg p-6 relative">
+        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">MOST POPULAR</span>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Pro Plan</h3>
+        <p class="text-gray-600 mb-4">For serious developers</p>
+        <div class="text-3xl font-bold text-gray-900 mb-4">₹199<span class="text-lg font-normal text-gray-600">/month</span></div>
+        <ul class="space-y-3 mb-6">
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-700">Unlimited GitHub analyses</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-700">Advanced developer insights</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-700">PDF report downloads</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-700">AI career recommendations</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-gray-700">Priority support</span>
+          </li>
+        </ul>
+        <a href="/create-payment-order/" 
+           class="block w-full bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 transition-colors shadow-md"
+           onclick="initiatePayment(event)">
+          🚀 Upgrade to Pro
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <p class="text-gray-600 text-sm">
+        💳 Secure payment powered by Razorpay. You can cancel anytime.
+      </p>
+      <a href="/analyze/" class="inline-block mt-4 text-blue-600 hover:text-blue-700 font-medium">
+        ← Back to Analyzer
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay Payment Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+function initiatePayment(event) {
+  event.preventDefault();
+  
+  // Show loading state
+  const button = event.target;
+  const originalText = button.innerHTML;
+  button.innerHTML = '⏳ Processing...';
+  button.disabled = true;
+  
+  // Create payment order
+  fetch('/create-payment-order/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({})
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      throw new Error(data.error);
+    }
+    
+    // Open Razorpay checkout
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: data.currency,
+      name: data.name,
+      description: data.description,
+      image: data.image,
+      order_id: data.order_id,
+      handler: function (response) {
+        // Payment successful, verify signature
+        verifyPayment(response);
+      },
+      modal: {
+        ondismiss: function() {
+          // Reset button if payment is cancelled
+          button.innerHTML = originalText;
+          button.disabled = false;
+        }
+      },
+      prefill: data.prefill,
+      theme: data.theme
+    };
+    
+    const rzp = new Razorpay(options);
+    rzp.open();
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Payment initialization failed: ' + error.message);
+    button.innerHTML = originalText;
+    button.disabled = false;
+  });
+}
+
+function verifyPayment(response) {
+  fetch('/payment-success/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({
+      razorpay_order_id: response.razorpay_order_id,
+      razorpay_payment_id: response.razorpay_payment_id,
+      razorpay_signature: response.razorpay_signature
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = data.redirect_url;
+    } else {
+      throw new Error(data.error || 'Payment verification failed');
+    }
+  })
+  .catch(error => {
+    console.error('Verification Error:', error);
+    alert('Payment verification failed: ' + error.message);
+    window.location.href = '/payment-failure/';
+  });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+
+</body>
+</html>

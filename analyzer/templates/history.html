@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="View your GitHub portfolio analysis history and track your progress over time.">
+<title>Dashboard - DevPortfolio Analyzer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<style>
+  .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+</head>
+<body class="bg-gray-50">
+
+<nav class="fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold text-sm">DP</span>
+        </div>
+        <div class="font-bold text-xl text-gray-900">DevPortfolio</div>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+        <a href="/analyze/" class="text-gray-700 hover:text-blue-600 transition-colors">Analyze</a>
+        <a href="/history/" class="text-blue-600 font-semibold">Dashboard</a>
+        <button onclick="confirmLogout()" class="text-gray-700 hover:text-red-600 transition-colors">Logout</button>
+      </div>
+      <div class="md:hidden">
+        <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-blue-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+    <div class="px-4 py-3 space-y-3">
+      <a href="/" class="block text-gray-700 hover:text-blue-600">Home</a>
+      <a href="/analyze/" class="block text-gray-700 hover:text-blue-600">Analyze</a>
+      <a href="/history/" class="block text-blue-600 font-semibold">Dashboard</a>
+      <button onclick="confirmLogout()" class="block text-red-600 hover:text-red-700">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Your Dashboard</h1>
+      <p class="text-gray-600">Track your GitHub portfolio analysis history and progress over time</p>
+    </div>
+
+    {% if archives %}
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Analyses</p>
+            <p class="text-2xl font-bold text-gray-900">{{ archives|length }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Average Score</p>
+            <p class="text-2xl font-bold text-gray-900">
+              {% if archives %}{{ archives.0.score }}{% else %}0{% endif %}
+            </p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Repos</p>
+            <p class="text-2xl font-bold text-gray-900">
+              {% if archives %}{{ archives.0.repo_count }}{% else %}0{% endif %}
+            </p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Stars</p>
+            <p class="text-2xl font-bold text-gray-900">
+              {% if archives %}{{ archives.0.stars }}{% else %}0{% endif %}
+            </p>
+          </div>
+          <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Score Progress</h3>
+        <canvas id="scoreChart" width="400" height="200"></canvas>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Language Distribution</h3>
+        <canvas id="languageChart" width="400" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="flex flex-col sm:flex-row gap-4 items-center">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Date Range</label>
+          <select id="dateFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="all">All Time</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Score</label>
+          <select id="scoreFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="all">All Scores</option>
+            <option value="70">High (70-100)</option>
+            <option value="40">Medium (40-69)</option>
+            <option value="0">Low (0-39)</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Analysis History</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Repos</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stars</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for item in archives %}
+            <tr class="hover:bg-gray-50 transition-colors report-row" data-date="{{ item.created_at|date:'Y-m-d' }}" data-score="{{ item.score }}">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ item.created_at|date:"M d, Y" }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                      <span class="text-white font-semibold">{{ item.username|first|upper }}</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ item.username }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                  {% if item.score >= 70 %}bg-green-100 text-green-800
+                  {% elif item.score >= 40 %}bg-yellow-100 text-yellow-800
+                  {% else %}bg-red-100 text-red-800{% endif %}">
+                  {{ item.score }}/100
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.repo_count }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.stars }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="viewReport({{ item.id }})" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                <button onclick="deleteReport({{ item.id }})" class="text-red-600 hover:text-red-900">Delete</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No analysis history yet</h3>
+      <p class="text-gray-600 mb-6">Start analyzing GitHub profiles to build your history and track progress over time.</p>
+      <a href="/analyze/" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+        Analyze First Profile
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</main>
+
+<script>
+  // Filter functions
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('hidden');
+  }
+
+  function confirmLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+      window.location.href = '/logout/';
+    }
+  }
+
+  function applyFilters() {
+    const dateFilter = document.getElementById('dateFilter').value;
+    const scoreFilter = document.getElementById('scoreFilter').value;
+    const rows = document.querySelectorAll('.report-row');
+    
+    rows.forEach(row => {
+      const rowDate = new Date(row.dataset.date);
+      const rowScore = parseInt(row.dataset.score);
+      
+      let showRow = true;
+      
+      // Date filter
+      if (dateFilter !== 'all') {
+        const daysAgo = parseInt(dateFilter);
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
+        if (rowDate < cutoffDate) {
+          showRow = false;
+        }
+      }
+      
+      // Score filter
+      if (scoreFilter !== 'all') {
+        const minScore = parseInt(scoreFilter);
+        if (scoreFilter === '70' && rowScore < 70) showRow = false;
+        if (scoreFilter === '40' && (rowScore < 40 || rowScore >= 70)) showRow = false;
+        if (scoreFilter === '0' && rowScore >= 40) showRow = false;
+      }
+      
+      row.style.display = showRow ? '' : 'none';
+    });
+  }
+
+  function viewReport(id) {
+    // This would open a modal or navigate to a detailed view
+    alert('Report detail view would be implemented here');
+  }
+
+  function deleteReport(id) {
+    if (confirm('Are you sure you want to delete this report?')) {
+      // Make a POST request to delete the report
+      fetch(`/delete-report/${id}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      }).then(response => {
+        if (response.ok) {
+          location.reload();
+        }
+      });
+    }
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // Initialize charts when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    // Simple chart placeholders - in production these would be populated with real data
+    console.log('Dashboard loaded successfully');
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sign Up - Developer Portfolio Analyzer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .auth-form input {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.5rem;
+    margin-top: 0.35rem;
+  }
+  .auth-form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+  .auth-form .form-field {
+    margin-bottom: 1rem;
+  }
+  .errorlist { color: #b91c1c; margin-bottom: 0.5rem; }
+</style>
+</head>
+<body class="bg-gray-100">
+<div class="max-w-md mx-auto mt-20 bg-white shadow-lg rounded-lg p-8">
+  <h1 class="text-2xl font-semibold mb-4">Create an account</h1>
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="form-field">
+        <label for="id_{{ field.name }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div class="errorlist">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+    {% if form.non_field_errors %}
+      <div class="errorlist">{{ form.non_field_errors|striptags }}</div>
+    {% endif %}
+    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Sign Up</button>
+  </form>
+  <p class="mt-4 text-sm text-gray-600">Already have an account? <a href="/login/" class="text-blue-600 hover:underline">Log in</a></p>
+</div>
+</body>
+</html>

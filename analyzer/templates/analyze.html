@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Analyzer - Developer Portfolio Analyzer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<nav class="bg-white border-b border-gray-200 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="font-bold text-xl text-blue-600">DevPortfolio</div>
+    <div class="flex items-center gap-4 text-sm font-medium">
+      <a href="/analyze/" class="text-gray-700 hover:text-blue-600">Analyze</a>
+      <a href="/" class="text-gray-700 hover:text-blue-600">Dashboard</a>
+      {% if request.user.is_authenticated %}
+        {% if user_profile and not user_profile.is_pro %}
+          <a href="/upgrade/" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-medium">
+            🚀 Upgrade to Pro
+          </a>
+        {% endif %}
+        <a href="/logout/" class="text-gray-700 hover:text-blue-600">Logout</a>
+      {% else %}
+        <a href="/login/" class="text-gray-700 hover:text-blue-600">Login</a>
+        <a href="/signup/" class="text-gray-700 hover:text-blue-600">Sign Up</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-8">
+  <!-- Usage Status Banner -->
+  {% if request.user.is_authenticated and user_profile %}
+    <div class="mb-6 p-4 rounded-lg {% if user_profile.is_pro %}bg-green-50 border border-green-200{% else %}bg-blue-50 border border-blue-200{% endif %}">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          {% if user_profile.is_pro %}
+            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold text-green-800">Pro Member</p>
+              <p class="text-sm text-green-600">Unlimited analyses available</p>
+            </div>
+          {% else %}
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+              <span class="text-white font-bold text-sm">{{ user_profile.free_usage_remaining }}</span>
+            </div>
+            <div>
+              <p class="font-semibold text-blue-800">Free Usage: {{ user_profile.free_usage_count }}/1</p>
+              <p class="text-sm text-blue-600">
+                {% if user_profile.free_usage_count >= 1 %}
+                  Free limit reached
+                {% else %}
+                  {{ user_profile.free_usage_remaining }} free analysis left
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+        {% if not user_profile.is_pro %}
+          <a href="/upgrade/" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-medium text-sm">
+            🚀 Upgrade to Pro
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <h2 class="text-2xl font-bold text-center mb-6">Start your analysis</h2>
+
+  {% if request.user.is_authenticated and user_profile and not user_profile.can_analyze %}
+    <!-- Free limit reached - show upgrade prompt -->
+    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 mb-6">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-yellow-800 mb-2">Free Limit Reached</h3>
+        <p class="text-yellow-700 mb-4">You've used your 1 free analysis. Upgrade to Pro for unlimited access!</p>
+        <a href="/upgrade/" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-medium">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Upgrade to Pro - ₹199/month
+        </a>
+      </div>
+    </div>
+  {% else %}
+    <!-- Normal analysis form -->
+    <form method="POST" class="flex gap-4 justify-center mb-8">
+      {% csrf_token %}
+      <input type="text" name="username" placeholder="Enter GitHub Username" class="border rounded px-4 py-2 w-2/3" />
+      <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Analyze</button>
+    </form>
+  {% endif %}
+
+  <div id="loadingState" class="hidden bg-blue-100 border border-blue-200 text-blue-700 rounded p-3 mb-4 flex items-center gap-2" role="status" aria-live="polite">
+    <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+    <span>Analyzing GitHub profile...</span>
+  </div>
+
+  {% if error_message %}
+  <div class="bg-red-100 border border-red-200 text-red-700 rounded p-3 mb-4">Error: {{ error_message }}</div>
+  {% endif %}
+
+  {% if profile %}
+  <div class="flex items-center gap-4 bg-blue-50 border border-blue-100 rounded p-4 mb-6">
+    <img src="{{ profile.avatar_url }}" alt="{{ profile.username }} avatar" class="w-20 h-20 rounded-full object-cover border-2 border-blue-500" />
+    <div>
+      <h2 class="text-xl font-bold text-blue-800">
+        <a href="{{ profile.profile_url }}" target="_blank" rel="noopener" class="hover:underline">{{ profile.username }}</a>
+      </h2>
+      {% if profile.name %}<p class="text-sm text-gray-600">{{ profile.name }}</p>{% endif %}
+      {% if profile.bio %}<p class="text-sm text-gray-600">{{ profile.bio }}</p>{% endif %}
+      <p class="text-sm text-gray-700 mt-1">Followers: <strong>{{ profile.followers }}</strong> · Repos: <strong>{{ profile.public_repos }}</strong></p>
+      <a href="{{ profile.profile_url }}" target="_blank" rel="noopener" class="text-sm text-blue-600 font-semibold hover:underline">View on GitHub</a>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if archives %}
+  <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+    <h3 class="text-lg font-semibold mb-3">Recent Saved Analyses</h3>
+    <ul class="space-y-2">
+      {% for item in archives %}
+      <li class="border border-gray-200 rounded p-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="text-sm text-gray-600">{{ item.created_at|date:"Y-m-d H:i" }}</div>
+            <div class="font-semibold">{{ item.username }} — Score: {{ item.score }}/100</div>
+          </div>
+          <div class="text-sm text-gray-500">{{ item.repo_count }} repos · {{ item.stars }} stars</div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    <div class="text-right mt-3"><a href="/history/" class="text-blue-600 hover:underline">View full history</a></div>
+  </div>
+  {% endif %}
+
+  {% if report %}
+  <div class="bg-gray-50 p-6 rounded">
+
+  <h2 class="text-xl font-semibold mb-2">Developer Score</h2>
+  <div class="w-full bg-gray-200 rounded-full h-6 mb-4">
+    <div class="progress-bar {% if report.score < 40 %}bg-red-500{% elif report.score < 70 %}bg-yellow-500{% else %}bg-green-500{% endif %} h-6 rounded-full text-white text-sm text-center" data-width="{{ report.score }}">{{ report.score }}%</div>
+  </div>
+
+  <p><strong>Total Repositories:</strong> {{ report.repo_count }}</p>
+  <p><strong>Total Stars:</strong> {{ report.stars }}</p>
+
+  {% if report.top_languages %}
+  <h3 class="font-semibold mt-4">Top Programming Languages</h3>
+  <div class="space-y-2">
+    {% for language in report.top_languages %}
+    <div>
+      <div class="flex justify-between text-sm font-medium text-gray-700">
+        <span>{{ language.name }}</span>
+        <span>{{ language.count }} repos</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+        <div class="bg-blue-500 h-2 rounded-full progress-bar" data-width="{{ language.percent }}"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h3 class="font-semibold mt-4">Languages</h3>
+  <ul class="list-disc ml-6">
+    {% for lang in report.languages %}
+    <li>{{ lang }}</li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="font-semibold mt-4">Strengths</h3>
+  <ul class="list-disc ml-6">
+    {% for s in report.strengths %}
+    <li>{{ s }}</li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="font-semibold mt-4">Weaknesses</h3>
+  <ul class="list-disc ml-6">
+    {% for w in report.weaknesses %}
+    <li>{{ w }}</li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="font-semibold mt-4">AI Career Advice</h3>
+  <p class="bg-blue-50 p-4 rounded mt-2">{{ ai_feedback }}</p>
+
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    function setProgressBarWidths() {
+      document.querySelectorAll('.progress-bar[data-width]').forEach(function(el) {
+        var value = el.getAttribute('data-width');
+        if (value !== null) {
+          var pct = Number(value);
+          if (!isNaN(pct)) {
+            el.style.width = pct + '%';
+          }
+        }
+      });
+    }
+
+    setProgressBarWidths();
+
+    const form = document.querySelector('form');
+    const loadingState = document.getElementById('loadingState');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', function() {
+      if (loadingState) loadingState.classList.remove('hidden');
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
