@@ -4,8 +4,8 @@ services:
     name: devportfolio
     env: python
     plan: free
-    buildCommand: "pip install -r requirements_prod.txt && python manage.py collectstatic --noinput"
-    startCommand: "./start.sh"
+    buildCommand: "pip install -r requirements_prod.txt && python render_start.py"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1"
     healthCheckPath: /
     autoDeploy: true
     
@@ -29,8 +29,8 @@ services:
         sync: false
       - key: ALLOWED_HOSTS
         value: devportfolio.onrender.com
-      - key: PYTHONPATH
-        value: "/opt/render/project/src"
+      - key: DJANGO_SETTINGS_MODULE
+        value: "config.deployment_settings"
 
   # PostgreSQL Database
   - type: pserv
