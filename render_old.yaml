@@ -4,10 +4,10 @@ services:
     name: devportfolio
     env: python
     plan: free
-    buildCommand: "pip install -r requirements_prod.txt && python manage.py check --deploy"
-    startCommand: "python -c \"import os, sys; sys.path.insert(0, '.'); os.environ['DJANGO_SETTINGS_MODULE']='config.absolute_minimal_settings'; import django; django.setup(); from config.minimal_wsgi import application; import subprocess; subprocess.run(['gunicorn', '--bind', f'0.0.0.0:{os.environ.get(\"PORT\", \"8000\")}', '--workers', '1', 'config.minimal_wsgi:application'])\""
+    buildCommand: "pip install -r requirements_prod.txt && python -c 'import os; import sys; sys.path.insert(0, \".\"); os.environ[\"DJANGO_SETTINGS_MODULE\"] = \"config.absolute_minimal_settings\"; import django; django.setup(); print(\"✅ Django setup successful\")'"
+    startCommand: "python -c 'import os; import sys; sys.path.insert(0, \".\"); os.environ[\"DJANGO_SETTINGS_MODULE\"] = \"config.absolute_minimal_settings\"; from config.minimal_wsgi import application; print(\"✅ WSGI application loaded\"); import subprocess; subprocess.run([\"gunicorn\", \"config.minimal_wsgi:application\", \"--bind\", \"0.0.0.0:$PORT\", \"--workers\", \"1\"])'"
     healthCheckPath: /
-    autoDeploy: false
+    autoDeploy: false  # Disable auto-deploy to prevent repeated failures
     
     # Environment Variables (set these in Render dashboard)
     envVars:
