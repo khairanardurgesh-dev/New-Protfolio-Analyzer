@@ -5,7 +5,7 @@ set -e  # Exit on any error
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 
 echo "🔧 Installing dependencies..."
-pip install -r requirements.txt
+pip install -r requirements_prod.txt
 
 echo "📦 Collecting static files..."
 python manage.py collectstatic --noinput

@@ -5,5 +5,6 @@ class AnalyzerConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'analyzer'
 
-    def ready(self):
-        import analyzer.signals
+    # Remove ready() method to avoid import issues during deployment
+    # def ready(self):
+    #     import analyzer.signals
