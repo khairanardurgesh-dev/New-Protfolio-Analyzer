@@ -4,7 +4,7 @@ services:
     name: devportfolio
     env: python
     plan: free
-    buildCommand: "pip install -r requirements_prod.txt && python manage.py check --deploy"
+    buildCommand: "pip install -r requirements_prod.txt && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py check --deploy"
     startCommand: "python start_gunicorn.py && echo '=== STARTUP SCRIPT EXECUTED ===' && sleep 5 && python start_gunicorn.py"
     healthCheckPath: /
     autoDeploy: false

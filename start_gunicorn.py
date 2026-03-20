@@ -13,10 +13,14 @@ def main():
     print("🚀 ULTIMATE GUNICORN STARTUP - Render Deployment Fix")
     print("=" * 60)
     
-    # Debug information
+    # Ensure we're in the correct directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
     print(f"📁 Working directory: {os.getcwd()}")
+    
+    # Debug information
     print(f"🐍 Python version: {sys.version}")
-    print(f"� Python path: {sys.path}")
+    print(f"📋 Python path: {sys.path}")
     
     # Set environment variables explicitly
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.absolute_minimal_settings')
@@ -52,13 +56,12 @@ def main():
         from config.minimal_wsgi import application
         print("✅ WSGI application loaded")
         
-        # Test the application
+        # Test application
         print("🧪 Testing WSGI application...")
         if hasattr(application, '__call__'):
             print("✅ WSGI application is callable")
         else:
             print("❌ WSGI application is not callable")
-            return False
             
     except Exception as e:
         print(f"❌ WSGI application failed: {e}")
@@ -77,7 +80,7 @@ def main():
     port = os.environ.get('PORT', '8000')
     print(f"🌐 Port: {port}")
     
-    # Build Gunicorn command
+    # Build Gunicorn command with enhanced settings
     cmd = [
         'gunicorn',
         '--bind', f'0.0.0.0:{port}',
@@ -86,6 +89,8 @@ def main():
         '--keepalive', '5',
         '--max-requests', '1000',
         '--max-requests-jitter', '100',
+        '--access-logfile', '-',
+        '--error-logfile', '-',
         'config.minimal_wsgi:application'
     ]
     
@@ -103,7 +108,7 @@ def main():
     except FileNotFoundError:
         print("❌ Gunicorn not found. Installing...")
         subprocess.run([sys.executable, '-m', 'pip', 'install', 'gunicorn'], check=True)
-        print("� Gunicorn installed. Retrying...")
+        print("🔧 Gunicorn installed. Retrying...")
         subprocess.run(cmd, check=True)
     
     return True
