@@ -5,7 +5,7 @@ services:
     env: python
     plan: free
     buildCommand: "pip install -r requirements_prod.txt && python manage.py check --deploy"
-    startCommand: "python -c \"import os, sys; sys.path.insert(0, '.'); os.environ['DJANGO_SETTINGS_MODULE']='config.absolute_minimal_settings'; import django; django.setup(); from config.minimal_wsgi import application; import subprocess; subprocess.run(['gunicorn', '--bind', f'0.0.0.0:{os.environ.get(\"PORT\", \"8000\")}', '--workers', '1', 'config.minimal_wsgi:application'])\""
+    startCommand: "python start_gunicorn.py"
     healthCheckPath: /
     autoDeploy: false
     
