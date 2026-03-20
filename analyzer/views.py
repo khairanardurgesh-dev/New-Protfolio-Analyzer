@@ -76,16 +76,6 @@ def landing(request):
 
  
 
-# Apply decorator only if available
-if DECORATORS_AVAILABLE and limit_usage:
-    @limit_usage
-    def analyze(request):
-        pass
-else:
-    def analyze(request):
-        pass
-
-# Now define the actual function
 def analyze(request):
     """Analyze GitHub portfolio - simplified version"""
     report = None

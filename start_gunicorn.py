@@ -24,7 +24,14 @@ def main():
     
     # Set environment variables explicitly
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.absolute_minimal_settings')
+    
+    # Ensure SECRET_KEY is set (critical for Django)
+    if not os.environ.get('SECRET_KEY') or os.environ.get('SECRET_KEY') == '':
+        os.environ['SECRET_KEY'] = 'django-insecure-startup-fallback-key-for-render-deployment'
+        print("🔑 Set fallback SECRET_KEY")
+    
     print(f"⚙️ Django settings: {os.environ['DJANGO_SETTINGS_MODULE']}")
+    print(f"🔑 SECRET_KEY is set: {'Yes' if os.environ.get('SECRET_KEY') else 'No'}")
     
     # Add current directory to Python path
     if os.getcwd() not in sys.path:
