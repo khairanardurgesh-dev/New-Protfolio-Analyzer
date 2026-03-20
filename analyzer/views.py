@@ -18,9 +18,29 @@ import razorpay
 import hashlib
 import json
 
+def test_view(request):
+    """Simple test view to debug issues"""
+    return JsonResponse({
+        "status": "working",
+        "method": request.method,
+        "user_authenticated": request.user.is_authenticated,
+        "path": request.path,
+        "get_params": dict(request.GET),
+        "post_params": dict(request.POST)
+    })
+
 def landing(request):
-    return render(request, "index.html")
-    
+    """Simple landing page view"""
+    try:
+        return render(request, "index.html")
+    except Exception as e:
+        # Fallback response if template fails
+        return JsonResponse({
+            "error": "Template rendering failed",
+            "details": str(e),
+            "template": "index.html",
+            "user_authenticated": request.user.is_authenticated
+        })
 
  
 

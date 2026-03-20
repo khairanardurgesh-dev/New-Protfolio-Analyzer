@@ -17,10 +17,11 @@ Including another URLconf
 from analyzer import views
 from django.urls import path
 from django.contrib import admin
-from analyzer.views import landing, analyze, signup, login_view, logout_view, history, delete_report, profile, upgrade, upgrade_to_pro, create_payment_order, payment_success, payment_failure
+from analyzer.views import landing, analyze, signup, login_view, logout_view, history, delete_report, profile, upgrade, upgrade_to_pro, create_payment_order, payment_success, payment_failure, test_view
 
 urlpatterns = [
     path("", views.landing, name="landing"),
+    path('test/', test_view, name='test'),
     path('admin/', admin.site.urls),
     path('analyze/', analyze, name='analyze'),
     path('signup/', signup, name='signup'),
