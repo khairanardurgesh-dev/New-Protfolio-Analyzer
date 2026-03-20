@@ -14,7 +14,15 @@ from .ai_report import generate_ai_report
 from .models import ReportHistory, UserProfile
 from .analytics import track_portfolio_analysis, track_user_signup, track_user_login
 from .decorators import limit_usage, pro_required
-import razorpay
+
+# Optional imports for payment processing
+try:
+    import razorpay
+    RAZORPAY_AVAILABLE = True
+except ImportError:
+    RAZORPAY_AVAILABLE = False
+    razorpay = None
+
 import hashlib
 import json
 
@@ -263,6 +271,9 @@ def payment_success(request):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User not authenticated'}, status=401)
     
+    if not RAZORPAY_AVAILABLE:
+        return JsonResponse({'error': 'Payment service not available'}, status=503)
+    
     try:
         # Get payment details from request
         razorpay_order_id = request.POST.get('razorpay_order_id')
@@ -327,6 +338,9 @@ def create_payment_order(request):
     
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User not authenticated'}, status=401)
+    
+    if not RAZORPAY_AVAILABLE:
+        return JsonResponse({'error': 'Payment service not available'}, status=503)
     
     # Get user profile
     try:
