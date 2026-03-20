@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 class AnalyzerConfig(AppConfig):
     name = 'analyzer'
-    # Absolutely no imports or extra methods to avoid deployment issues
+    # Absolutely no imports or extra methods

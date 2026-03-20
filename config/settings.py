@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'analyzer.apps.AnalyzerConfig',
+    'analyzer',  # Use simple app name, no config
 ]
 
 MIDDLEWARE = [
