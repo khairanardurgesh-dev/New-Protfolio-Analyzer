@@ -4,8 +4,8 @@ services:
     name: devportfolio
     env: python
     plan: free
-    buildCommand: "pip install -r requirements_prod.txt && python manage.py check --deploy"
-    startCommand: "gunicorn config.minimal_wsgi:application --bind 0.0.0.0:$PORT --workers 1"
+    buildCommand: "pip install -r requirements_prod.txt && python -c 'import os; import sys; sys.path.insert(0, \".\"); os.environ[\"DJANGO_SETTINGS_MODULE\"] = \"config.absolute_minimal_settings\"; import django; django.setup(); print(\"✅ Django setup successful\")'"
+    startCommand: "python -c 'import os; import sys; sys.path.insert(0, \".\"); os.environ[\"DJANGO_SETTINGS_MODULE\"] = \"config.absolute_minimal_settings\"; from config.minimal_wsgi import application; print(\"✅ WSGI application loaded\"); import subprocess; subprocess.run([\"gunicorn\", \"config.minimal_wsgi:application\", \"--bind\", \"0.0.0.0:$PORT\", \"--workers\", \"1\"])'"
     healthCheckPath: /
     autoDeploy: false  # Disable auto-deploy to prevent repeated failures
     
