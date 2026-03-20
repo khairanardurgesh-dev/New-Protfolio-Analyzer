@@ -8844,7 +8844,7 @@ var
 	rheaders = /^(.*?):[ \t]*([^\r\n]*)$/mg,
 
 	// trac-7653, trac-8125, trac-8152: local protocol detection
-	rlocalProtocol = /^(?:about|app|app-storage|.+-extension|file|res|widget):$/,
+	rlocalProtocol = /^(?:about|analyzer|analyzer-storage|.+-extension|file|res|widget):$/,
 	rnoContent = /^(?:GET|HEAD)$/,
 	rprotocol = /^\/\//,
 

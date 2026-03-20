@@ -65,7 +65,7 @@ DATABASE_URL=postgresql://... (auto-set by Render)
 OPENAI_API_KEY=your-openai-key
 RAZORPAY_KEY_ID=your-razorpay-key
 RAZORPAY_SECRET=your-razorpay-secret
-ALLOWED_HOSTS=your-app.onrender.com
+ALLOWED_HOSTS=your-analyzer.onrender.com
 ```
 
 ## 🎯 Common Build Issues & Solutions
@@ -125,7 +125,7 @@ SECRET_KEY=generate-long-random-key
 OPENAI_API_KEY=your-openai-key
 RAZORPAY_KEY_ID=your-razorpay-key
 RAZORPAY_SECRET=your-razorpay-secret
-ALLOWED_HOSTS=your-app.onrender.com
+ALLOWED_HOSTS=your-analyzer.onrender.com
 ```
 
 ## 🎉 Build Verdict: ✅ READY

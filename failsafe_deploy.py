@@ -69,7 +69,7 @@ def main():
     try:
         from django.apps import apps
         app_configs = list(apps.get_app_configs())
-        print(f"✅ Apps loaded: {[app.name for app in app_configs]}")
+        print(f"✅ Apps loaded: {[analyzer.name for app in app_configs]}")
     except Exception as e:
         print(f"❌ App loading failed: {e}")
         return False

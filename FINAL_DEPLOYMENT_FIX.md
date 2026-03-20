@@ -146,7 +146,7 @@ DEBUG=False
 OPENAI_API_KEY=your-openai-key
 RAZORPAY_KEY_ID=your-razorpay-key
 RAZORPAY_SECRET=your-razorpay-secret
-ALLOWED_HOSTS=your-app.onrender.com
+ALLOWED_HOSTS=your-analyzer.onrender.com
 ```
 
 ### **📊 Expected Results:**
