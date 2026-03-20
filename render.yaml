@@ -4,8 +4,8 @@ services:
     name: devportfolio
     env: python
     plan: free
-    buildCommand: "pip install -r requirements_prod.txt && python failsafe_deploy.py"
-    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1"
+    buildCommand: "pip install -r requirements_prod.txt && python manage.py check --deploy"
+    startCommand: "gunicorn config.minimal_wsgi:application --bind 0.0.0.0:$PORT --workers 1"
     healthCheckPath: /
     autoDeploy: false  # Disable auto-deploy to prevent repeated failures
     
@@ -30,7 +30,7 @@ services:
       - key: ALLOWED_HOSTS
         value: devportfolio.onrender.com
       - key: DJANGO_SETTINGS_MODULE
-        value: "config.minimal_settings"
+        value: "config.absolute_minimal_settings"
 
   # PostgreSQL Database
   - type: pserv
