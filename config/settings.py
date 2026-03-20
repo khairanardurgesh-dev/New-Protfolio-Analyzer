@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=nmp7p$lo@y@lrk!kg^c4_qikl3=+rwy@+xw4t59*imllmg%p0'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -123,6 +124,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Database configuration for production
+import dj_database_url
+DATABASES = {
+    'default': dj_database_url.config(default='sqlite:///db.sqlite3')
+}
 
 # Authentication redirect settings
 LOGIN_URL = '/login/'
@@ -131,6 +139,6 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 # Razorpay Settings
 # Get your keys from: https://dashboard.razorpay.com/settings/api-keys
-RAZORPAY_KEY_ID = 'rzp_live_ST8fxl2WaLbRMk'  # Replace with your actual test key
-RAZORPAY_SECRET = 'oVUL1fVHiVnz1mEFaVdT9oSO'  # Replace with your actual test secret
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_XXXXXXXXXXXXXXXX')
+RAZORPAY_SECRET = os.getenv('RAZORPAY_SECRET', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 RAZORPAY_CURRENCY = 'INR'
