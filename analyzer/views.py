@@ -10,9 +10,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.conf import settings
 from .github_service import get_github_repos, get_github_profile
 from .portfolio_analyzer import analyze_portfolio
-from .ai_report import generate_ai_report
 from .models import ReportHistory, UserProfile
-from .analytics import track_portfolio_analysis, track_user_signup, track_user_login
 from .decorators import limit_usage, pro_required
 
 # Optional imports for payment processing
@@ -22,6 +20,24 @@ try:
 except ImportError:
     RAZORPAY_AVAILABLE = False
     razorpay = None
+
+# Optional imports for analytics
+try:
+    from .analytics import track_portfolio_analysis, track_user_signup, track_user_login
+    ANALYTICS_AVAILABLE = True
+except ImportError:
+    ANALYTICS_AVAILABLE = False
+    track_portfolio_analysis = None
+    track_user_signup = None
+    track_user_login = None
+
+# Optional imports for AI report
+try:
+    from .ai_report import generate_ai_report
+    AI_REPORT_AVAILABLE = True
+except ImportError:
+    AI_REPORT_AVAILABLE = False
+    generate_ai_report = None
 
 import hashlib
 import json
@@ -116,11 +132,12 @@ def analyze(request):
                             user_profile.save()
                         
                         # Track portfolio analysis
-                        track_portfolio_analysis(
-                            user_id=request.user.id,
-                            username=username,
-                            score=report.get('score')
-                        )
+                        if ANALYTICS_AVAILABLE and track_portfolio_analysis:
+                            track_portfolio_analysis(
+                                user_id=request.user.id,
+                                username=username,
+                                score=report.get('score')
+                            )
                 
     if request.user.is_authenticated:
         archives = ReportHistory.objects.filter(user=request.user).order_by('-created_at')[:12]
@@ -144,7 +161,8 @@ def signup(request):
             user = form.save()
             login(request, user)
             # Track user signup
-            track_user_signup(user.id)
+            if ANALYTICS_AVAILABLE and track_user_signup:
+                track_user_signup(user.id)
             return redirect('analyze')
     else:
         form = UserCreationForm()
@@ -159,7 +177,8 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             # Track user login
-            track_user_login(user.id)
+            if ANALYTICS_AVAILABLE and track_user_login:
+                track_user_login(user.id)
             return redirect('analyze')
     else:
         form = AuthenticationForm()
