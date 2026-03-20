@@ -92,8 +92,8 @@
     padding-right: 16px;
 }
 
-#nav-sidebar .current-app .section:link,
-#nav-sidebar .current-app .section:visited {
+#nav-sidebar .current-analyzer.section:link,
+#nav-sidebar .current-analyzer.section:visited {
     color: var(--header-color);
     font-weight: bold;
 }

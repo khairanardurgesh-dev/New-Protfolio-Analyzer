@@ -10,7 +10,7 @@
                         return {
                             term: params.term,
                             page: params.page,
-                            app_label: element.dataset.appLabel,
+                            analyser_label: element.dataset.analyserLabel,
                             model_name: element.dataset.modelName,
                             field_name: element.dataset.fieldName
                         };
