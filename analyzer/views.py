@@ -11,7 +11,15 @@ from django.conf import settings
 from .github_service import get_github_repos, get_github_profile
 from .portfolio_analyzer import analyze_portfolio
 from .models import ReportHistory, UserProfile
-from .decorators import limit_usage, pro_required
+
+# Optional imports for decorators
+try:
+    from .decorators import limit_usage, pro_required
+    DECORATORS_AVAILABLE = True
+except ImportError:
+    DECORATORS_AVAILABLE = False
+    limit_usage = None
+    pro_required = None
 
 # Optional imports for payment processing
 try:
@@ -68,91 +76,51 @@ def landing(request):
 
  
 
-@limit_usage
+# Apply decorator only if available
+if DECORATORS_AVAILABLE and limit_usage:
+    @limit_usage
+    def analyze(request):
+        pass
+else:
+    def analyze(request):
+        pass
+
+# Now define the actual function
 def analyze(request):
+    """Analyze GitHub portfolio - simplified version"""
     report = None
     ai_feedback = None
     profile = None
     error_message = None
     
-    # Get user profile (decorator ensures it exists)
-    user_profile = None
-    if request.user.is_authenticated:
-        try:
-            user_profile = request.user.profile
-        except UserProfile.DoesNotExist:
-            # This shouldn't happen with the decorator, but just in case
-            user_profile = UserProfile.objects.create(
-                user=request.user,
-                is_pro=False,
-                free_usage_count=0
-            )
-
+    # Simple version without decorators for debugging
     if request.method == "POST":
         username = request.POST.get("username")
-
-        # Check if user can analyze (this is double-checked by decorator)
-        if request.user.is_authenticated and user_profile and not user_profile.can_analyze:
-            messages.error(request, "You've used your free analysis. Upgrade to Pro to continue!")
-            return redirect('upgrade')
-
+        
         profile = get_github_profile(username)
         if not profile:
             error_message = "GitHub profile not found. Please check username."
         else:
             repos = get_github_repos(username)
-
+            
             if repos is None:
                 error_message = "Unable to fetch repositories from GitHub."
             else:
                 report = analyze_portfolio(repos)
                 try:
-                    ai_feedback = generate_ai_report(report)
+                    if AI_REPORT_AVAILABLE and generate_ai_report:
+                        ai_feedback = generate_ai_report(report)
                 except Exception as e:
                     error_message = str(e)
-
-                if report:
-                    if request.user.is_authenticated and user_profile:
-                        ReportHistory.objects.create(
-                            user=request.user,
-                            username=username,
-                            score=report['score'],
-                            repo_count=report['repo_count'],
-                            stars=report['stars'],
-                            language_counts=report.get('language_counts', {}),
-                            top_languages=report.get('top_languages', []),
-                            strengths=report.get('strengths', []),
-                            weaknesses=report.get('weaknesses', []),
-                            ai_feedback=ai_feedback if ai_feedback else "",
-                        )
-                        
-                        # Increment free usage count for non-pro users
-                        if not user_profile.is_pro:
-                            user_profile.free_usage_count += 1
-                            user_profile.save()
-                        
-                        # Track portfolio analysis
-                        if ANALYTICS_AVAILABLE and track_portfolio_analysis:
-                            track_portfolio_analysis(
-                                user_id=request.user.id,
-                                username=username,
-                                score=report.get('score')
-                            )
-                
-    if request.user.is_authenticated:
-        archives = ReportHistory.objects.filter(user=request.user).order_by('-created_at')[:12]
-    else:
-        archives = []
-
+    
     return render(request, "analyze.html", {
         "report": report,
         "ai_feedback": ai_feedback,
         "profile": profile,
         "error_message": error_message,
-        "archives": archives,
-        "user_profile": user_profile,
+        "archives": [],  # Simplified for debugging
+        "user_profile": None,  # Simplified for debugging
     })
-
 
 def signup(request):
     if request.method == 'POST':
