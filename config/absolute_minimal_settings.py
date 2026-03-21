@@ -111,6 +111,35 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+else:
+    # Development settings - less strict
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+
+# CSRF settings for compatibility
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com",
+    "https://devportfolio.onrender.com",
+]
+
+# CSRF cookie settings
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Session cookie settings
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Allow cross-origin requests for API
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
+CORS_ALLOWED_ORIGINS = [
+    "https://devportfolio.onrender.com",
+]
+
+# Additional security headers
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
 # API keys
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
