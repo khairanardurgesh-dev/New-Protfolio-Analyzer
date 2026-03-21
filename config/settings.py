@@ -139,8 +139,8 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 # Razorpay Settings
 # Get your keys from: https://dashboard.razorpay.com/settings/api-keys
-RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_XXXXXXXXXXXXXXXX')
-RAZORPAY_SECRET = os.getenv('RAZORPAY_SECRET', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_live_ST8fxl2WaLbRMk')
+RAZORPAY_SECRET = os.getenv('RAZORPAY_SECRET', 'oVUL1fVHiVnz1mEFaVdT9oSO')
 RAZORPAY_CURRENCY = 'INR'
 
 # Production Security Settings
