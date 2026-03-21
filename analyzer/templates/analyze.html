@@ -71,25 +71,46 @@
 
   <h2 class="text-2xl font-bold text-center mb-6">Start your analysis</h2>
 
-  {% if request.user.is_authenticated and user_profile and not user_profile.can_analyze %}
-    <!-- Free limit reached - show upgrade prompt -->
-    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 mb-6">
-      <div class="text-center">
-        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-yellow-800 mb-2">Free Limit Reached</h3>
-        <p class="text-yellow-700 mb-4">You've used your 1 free analysis. Upgrade to Pro for unlimited access!</p>
-        <a href="/upgrade/" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-medium">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          Upgrade to Pro - ₹199/month
-        </a>
+  <!-- Freemium Status Banner -->
+  {% if free_used and not is_paid %}
+  <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 mb-6">
+    <div class="text-center">
+      <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
       </div>
+      <h3 class="text-xl font-semibold text-yellow-800 mb-2">Free Analysis Used</h3>
+      <p class="text-yellow-700 mb-4">You've used your 1 free analysis. Upgrade to Pro for unlimited detailed reports!</p>
+      <a href="/upgrade/" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Unlock Full Report - ₹199
+      </a>
     </div>
+  </div>
+  {% endif %}
+
+  {% if not can_analyze %}
+  <!-- Payment required - show upgrade prompt -->
+  <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 mb-6">
+    <div class="text-center">
+      <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-yellow-800 mb-2">Payment Required</h3>
+      <p class="text-yellow-700 mb-4">Upgrade to Pro to unlock unlimited GitHub portfolio analyses!</p>
+      <a href="/upgrade/" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Upgrade to Pro - ₹199/month
+      </a>
+    </div>
+  </div>
   {% else %}
     <!-- Normal analysis form -->
     <form method="POST" class="flex gap-4 justify-center mb-8">
@@ -306,60 +327,126 @@
     
     function displayPremiumContent(sections) {
       const premiumContent = document.getElementById('premium-content');
+      const isPaid = {{ is_paid|yesno:"true,false" }};
+      const freeUsed = {{ free_used|yesno:"true,false" }};
       
       let html = '';
       
-      // Skill Assessment
-      if (sections['🧠 Skill Assessment']) {
-        html += createSectionCard('🧠 Skill Assessment', sections['🧠 Skill Assessment'], 'blue');
+      // Show overall score always
+      if (sections['🔍 Overall Developer Score']) {
+        html += createSectionCard('🔍 Overall Developer Score', sections['🔍 Overall Developer Score'], 'purple');
       }
       
-      // Project Quality
-      if (sections['📁 Project Quality Analysis']) {
-        html += createSectionCard('📁 Project Quality Analysis', sections['📁 Project Quality Analysis'], 'green');
-      }
-      
-      // Consistency & Activity
-      if (sections['📊 Consistency & Activity']) {
-        html += createSectionCard('📊 Consistency & Activity', sections['📊 Consistency & Activity'], 'purple');
-      }
-      
-      // Strengths
-      if (sections['🏆 Strengths']) {
-        html += createSectionCard('🏆 Strengths', sections['🏆 Strengths'], 'emerald');
-      }
-      
-      // Weaknesses
-      if (sections['⚠️ Weaknesses']) {
-        html += createSectionCard('⚠️ Weaknesses', sections['🏆 Weaknesses'], 'red');
-      }
-      
-      // Hireability Analysis
-      if (sections['💼 Hireability Analysis']) {
-        html += createSectionCard('💼 Hireability Analysis', sections['💼 Hireability Analysis'], 'indigo');
-      }
-      
-      // Improvement Roadmap
-      if (sections['🚀 Improvement Roadmap']) {
-        html += createSectionCard('🚀 Improvement Roadmap', sections['🚀 Improvement Roadmap'], 'orange');
-      }
-      
-      // Portfolio Suggestions
-      if (sections['💡 Portfolio Suggestions']) {
-        html += createSectionCard('💡 Portfolio Suggestions', sections['💡 Portfolio Suggestions'], 'pink');
-      }
-      
-      // Recruiter Impression
-      if (sections['👔 Recruiter Impression Summary']) {
-        html += createSectionCard('👔 Recruiter Impression Summary', sections['👔 Recruiter Impression Summary'], 'cyan');
-      }
-      
-      // Final Verdict
-      if (sections['📈 Final Verdict']) {
-        html += createSectionCard('📈 Final Verdict', sections['📈 Final Verdict'], 'violet');
+      if (isPaid) {
+        // Show all sections for paid users
+        if (sections['🧠 Skill Assessment']) {
+          html += createSectionCard('🧠 Skill Assessment', sections['🧠 Skill Assessment'], 'blue');
+        }
+        
+        if (sections['📁 Project Quality Analysis']) {
+          html += createSectionCard('📁 Project Quality Analysis', sections['📁 Project Quality Analysis'], 'green');
+        }
+        
+        if (sections['📊 Consistency & Activity']) {
+          html += createSectionCard('📊 Consistency & Activity', sections['📊 Consistency & Activity'], 'purple');
+        }
+        
+        if (sections['🏆 Strengths']) {
+          html += createSectionCard('🏆 Strengths', sections['🏆 Strengths'], 'emerald');
+        }
+        
+        if (sections['⚠️ Weaknesses']) {
+          html += createSectionCard('⚠️ Weaknesses', sections['⚠️ Weaknesses'], 'red');
+        }
+        
+        if (sections['💼 Hireability Analysis']) {
+          html += createSectionCard('💼 Hireability Analysis', sections['💼 Hireability Analysis'], 'indigo');
+        }
+        
+        if (sections['🚀 Improvement Roadmap']) {
+          html += createSectionCard('🚀 Improvement Roadmap', sections['🚀 Improvement Roadmap'], 'orange');
+        }
+        
+        if (sections['💡 Portfolio Suggestions']) {
+          html += createSectionCard('💡 Portfolio Suggestions', sections['💡 Portfolio Suggestions'], 'pink');
+        }
+        
+        if (sections['👔 Recruiter Impression Summary']) {
+          html += createSectionCard('👔 Recruiter Impression Summary', sections['👔 Recruiter Impression Summary'], 'cyan');
+        }
+        
+        if (sections['📈 Final Verdict']) {
+          html += createSectionCard('📈 Final Verdict', sections['📈 Final Verdict'], 'violet');
+        }
+      } else {
+        // Show locked sections for free users
+        html += createLockedSection('🧠 Skill Assessment', 'blue');
+        html += createLockedSection('📁 Project Quality Analysis', 'green');
+        html += createLockedSection('📊 Consistency & Activity', 'purple');
+        html += createLockedSection('🏆 Strengths', 'emerald');
+        html += createLockedSection('⚠️ Weaknesses', 'red');
+        html += createLockedSection('💼 Hireability Analysis', 'indigo');
+        html += createLockedSection('🚀 Improvement Roadmap', 'orange');
+        html += createLockedSection('💡 Portfolio Suggestions', 'pink');
+        html += createLockedSection('👔 Recruiter Impression Summary', 'cyan');
+        html += createLockedSection('📈 Final Verdict', 'violet');
+        
+        // Add upgrade prompt
+        html += `
+          <div class="bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-300 rounded-lg p-6 text-center">
+            <div class="w-16 h-16 bg-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a5 5 0 01-10 0v2a5 5 0 0110 0v2a5 5 0 01-10 0v3a1 1 0 001 1h3a1 1 0 001 1v3a1 1 0 001-1h-3a1 1 0 00-1-1v-3a1 1 0 00-1 1h-3a1 1 0 00-1-1v-3a1 1 0 001-1h3a1 1 0 001-1v-3a1 1 0 001 1h3a1 1 0 001 1v3a5 5 0 0110 0v-2a5 5 0 01-10 0v-2H5z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <h4 class="text-lg font-semibold text-purple-800 mb-2">Unlock Full Detailed Report</h4>
+            <p class="text-purple-700 mb-4">Get access to 10+ comprehensive sections including skills analysis, project evaluation, career roadmap, and personalized recommendations.</p>
+            <a href="/upgrade/" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 font-medium shadow-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Unlock Full Report - ₹199
+            </a>
+          </div>
+        `;
       }
       
       premiumContent.innerHTML = html;
+    }
+    
+    function createLockedSection(title, colorClass) {
+      const colorMap = {
+        'blue': 'bg-blue-50 border-blue-200',
+        'green': 'bg-green-50 border-green-200',
+        'purple': 'bg-purple-50 border-purple-200',
+        'emerald': 'bg-emerald-50 border-emerald-200',
+        'red': 'bg-red-50 border-red-200',
+        'indigo': 'bg-indigo-50 border-indigo-200',
+        'orange': 'bg-orange-50 border-orange-200',
+        'pink': 'bg-pink-50 border-pink-200',
+        'cyan': 'bg-cyan-50 border-cyan-200',
+        'violet': 'bg-violet-50 border-violet-200'
+      };
+      
+      const bgColor = colorMap[colorClass] || 'bg-gray-50 border-gray-200';
+      
+      return `
+        <div class="bg-white rounded-lg p-4 shadow-md border-l-4 ${bgColor} relative overflow-hidden">
+          <div class="absolute inset-0 bg-white bg-opacity-90 backdrop-blur-sm flex items-center justify-center">
+            <div class="text-center">
+              <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a5 5 0 01-10 0v2a5 5 0 0110 0v2a5 5 0 01-10 0v3a1 1 0 001 1h3a1 1 0 001 1v3a1 1 0 001-1h-3a1 1 0 00-1-1v-3a1 1 0 00-1 1h-3a1 1 0 00-1-1v-3a1 1 0 001-1h3a1 1 0 001-1v-3a1 1 0 001 1h3a1 1 0 001 1v3a5 5 0 0110 0v-2a5 5 0 01-10 0v-2H5z" clip-rule="evenodd"/>
+              </svg>
+              <h4 class="font-semibold text-gray-600">${title}</h4>
+              <p class="text-sm text-gray-500">Premium content</p>
+            </div>
+          </div>
+          <h4 class="font-semibold text-gray-800 mb-2 opacity-30">${title}</h4>
+          <div class="text-sm text-gray-700 opacity-20">
+            This section is available in the premium report. Upgrade to unlock detailed insights and recommendations.
+          </div>
+        </div>
+      `;
     }
     
     function createSectionCard(title, content, colorClass) {

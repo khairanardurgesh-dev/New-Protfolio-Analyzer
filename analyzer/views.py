@@ -77,31 +77,68 @@ def landing(request):
  
 
 def analyze(request):
-    """Analyze GitHub portfolio - simplified version"""
+    """Analyze GitHub portfolio with freemium model"""
     report = None
     ai_feedback = None
     profile = None
     error_message = None
     
-    # Simple version without decorators for debugging
+    # Initialize session variables
+    if 'free_used' not in request.session:
+        request.session['free_used'] = False
+    if 'is_paid' not in request.session:
+        request.session['is_paid'] = False
+    
+    # Check if user can analyze
+    can_analyze = not request.session['free_used'] or request.session['is_paid']
+    
     if request.method == "POST":
+        if not can_analyze:
+            # Redirect to payment page if free used and not paid
+            return redirect('upgrade')
+        
         username = request.POST.get("username")
         
-        profile = get_github_profile(username)
-        if not profile:
-            error_message = "GitHub profile not found. Please check username."
-        else:
-            repos = get_github_repos(username)
+        try:
+            # Show loading state
+            request.session['analysis_loading'] = True
             
-            if repos is None:
-                error_message = "Unable to fetch repositories from GitHub."
+            profile = get_github_profile(username)
+            if not profile:
+                error_message = "GitHub profile not found. Please check username."
             else:
-                report = analyze_portfolio(repos)
-                try:
-                    if AI_REPORT_AVAILABLE and generate_ai_report:
-                        ai_feedback = generate_ai_report(report)
-                except Exception as e:
-                    error_message = str(e)
+                repos = get_github_repos(username)
+                
+                if repos is None:
+                    error_message = "Unable to fetch repositories from GitHub."
+                else:
+                    report = analyze_portfolio(repos)
+                    
+                    # Generate AI feedback with enhanced error handling
+                    try:
+                        if AI_REPORT_AVAILABLE and generate_ai_report:
+                            ai_feedback = generate_ai_report(report)
+                            print(f"✅ AI analysis generated for {username}")
+                        else:
+                            ai_feedback = "AI analysis temporarily unavailable. Please try again later."
+                    except Exception as e:
+                        print(f"❌ AI analysis failed: {e}")
+                        ai_feedback = f"AI analysis encountered an error: {str(e)}"
+            
+            # Mark free analysis as used
+            if not request.session['free_used']:
+                request.session['free_used'] = True
+                request.session['first_analysis_username'] = username
+                print(f"🔓 Free analysis used for {username}")
+            
+            request.session['analysis_loading'] = False
+            request.session.modified = True
+            
+        except Exception as e:
+            print(f"❌ Analysis failed: {e}")
+            error_message = f"Analysis failed: {str(e)}"
+            request.session['analysis_loading'] = False
+            request.session.modified = True
     
     return render(request, "analyze.html", {
         "report": report,
@@ -110,6 +147,10 @@ def analyze(request):
         "error_message": error_message,
         "archives": [],  # Simplified for debugging
         "user_profile": None,  # Simplified for debugging
+        "can_analyze": can_analyze,
+        "free_used": request.session['free_used'],
+        "is_paid": request.session['is_paid'],
+        "analysis_loading": request.session.get('analysis_loading', False),
     })
 
 def signup(request):
@@ -245,9 +286,7 @@ def profile(request):
 @csrf_protect
 def payment_success(request):
     """Handle Razorpay payment success and verify signature"""
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'User not authenticated'}, status=401)
-    
+    # Support both authenticated and session-based users
     if not RAZORPAY_AVAILABLE:
         return JsonResponse({'error': 'Payment service not available'}, status=503)
     
@@ -277,27 +316,34 @@ def payment_success(request):
         except razorpay.errors.SignatureVerificationError:
             return JsonResponse({'error': 'Invalid payment signature'}, status=400)
         
-        # Get user profile and upgrade to Pro
-        try:
-            user_profile = request.user.profile
-        except UserProfile.DoesNotExist:
-            user_profile = UserProfile.objects.create(
-                user=request.user,
-                is_pro=False,
-                free_usage_count=0
-            )
+        # Mark user as paid in session
+        request.session['is_paid'] = True
+        request.session['payment_completed'] = True
+        request.session.modified = True
         
-        # Upgrade user to Pro
-        user_profile.is_pro = True
-        user_profile.save()
+        print(f"✅ Payment successful - user marked as paid")
         
-        # Store payment details (optional - you can create a Payment model)
-        # For now, we'll just show success message
+        # If user is authenticated, also update their profile
+        if request.user.is_authenticated:
+            try:
+                user_profile = request.user.profile
+            except UserProfile.DoesNotExist:
+                user_profile = UserProfile.objects.create(
+                    user=request.user,
+                    is_pro=False,
+                    free_usage_count=0
+                )
+            
+            # Upgrade user to Pro
+            user_profile.is_pro = True
+            user_profile.save()
+            print(f"✅ Authenticated user {request.user.username} upgraded to Pro")
         
-        messages.success(request, "🎉 Payment successful! Welcome to Pro!")
+        messages.success(request, "🎉 Payment successful! You now have unlimited access to detailed reports!")
         return JsonResponse({'success': True, 'redirect_url': '/analyze/'})
         
     except Exception as e:
+        print(f"❌ Payment processing failed: {e}")
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -307,31 +353,19 @@ def payment_failure(request):
     return redirect('upgrade')
 
 
-@login_required
+@require_POST
+@csrf_protect
 def create_payment_order(request):
     """Create Razorpay payment order"""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'User not authenticated'}, status=401)
-    
     if not RAZORPAY_AVAILABLE:
         return JsonResponse({'error': 'Payment service not available'}, status=503)
     
-    # Get user profile
-    try:
-        user_profile = request.user.profile
-    except UserProfile.DoesNotExist:
-        user_profile = UserProfile.objects.create(
-            user=request.user,
-            is_pro=False,
-            free_usage_count=0
-        )
-    
-    # Check if already pro
-    if user_profile.is_pro:
-        return JsonResponse({'error': 'Already a Pro user'}, status=400)
+    # Support both authenticated and session-based users
+    user_id = request.user.id if request.user.is_authenticated else request.session.session_key
+    username = request.user.username if request.user.is_authenticated else f"session_{request.session.session_key[:8]}"
     
     # Initialize Razorpay client
     client = razorpay.Client(
@@ -347,9 +381,10 @@ def create_payment_order(request):
             'currency': settings.RAZORPAY_CURRENCY,
             'payment_capture': '1',
             'notes': {
-                'user_id': request.user.id,
-                'username': request.user.username,
-                'upgrade_to_pro': 'True'
+                'user_id': str(user_id),
+                'username': username,
+                'upgrade_to_pro': 'True',
+                'session_based': str(not request.user.is_authenticated)
             }
         }
         
@@ -364,8 +399,8 @@ def create_payment_order(request):
             'description': 'Upgrade to Pro - Unlimited GitHub Analyses',
             'image': 'https://your-domain.com/static/logo.png',  # Optional
             'prefill': {
-                'name': request.user.username,
-                'email': f'{request.user.username}@example.com',  # Optional
+                'name': username,
+                'email': f'{username}@example.com',  # Optional
                 'contact': '',  # Optional
             },
             'theme': {
@@ -374,4 +409,5 @@ def create_payment_order(request):
         })
         
     except Exception as e:
+        print(f"❌ Payment order creation failed: {e}")
         return JsonResponse({'error': str(e)}, status=500)
