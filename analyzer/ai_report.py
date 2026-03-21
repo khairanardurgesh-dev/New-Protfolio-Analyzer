@@ -25,32 +25,84 @@ def generate_ai_report(report_data):
     try:
         client = OpenAI(api_key=openai_api_key)
         
-        prompt = f"""
-        Analyze this developer portfolio data and provide actionable career advice:
+        prompt = f"""You are an expert software engineering career evaluator and technical recruiter.
 
-        Portfolio Score: {report_data['score']}/100
-        Total Repositories: {report_data['repo_count']}
-        Total Stars: {report_data['stars']}
-        Programming Languages: {', '.join(report_data.get('languages', []))}
-        Top Languages: {', '.join([lang.get('name', 'Unknown') for lang in report_data.get('top_languages', [])])}
+Analyze the following GitHub profile data in EXTREME DETAIL and generate a premium-level report that feels like a paid professional audit.
 
-        Please provide:
-        1. Key strengths based on their GitHub activity
-        2. Areas for improvement 
-        3. 3 specific project suggestions to enhance their portfolio
-        4. Career advice tailored to their experience level
+GitHub Data:
+{report_data}
 
-        Keep the response concise, encouraging, and actionable. Format with clear headings.
-        """
+---
+
+Generate a highly detailed report with these sections:
+
+1. 🔍 Overall Developer Score (0–100)
+* Give a realistic score based on hireability
+* Explain clearly why this score was given
+
+2. 🧠 Skill Assessment
+* Identify programming languages used
+* Frameworks and tools detected
+* Skill level (Beginner / Intermediate / Advanced)
+* Depth vs breadth of skills
+
+3. 📁 Project Quality Analysis
+* Evaluate best projects
+* Code quality and structure
+* Real-world usefulness
+* Originality vs tutorial-based projects
+
+4. 📊 Consistency & Activity
+* Commit frequency
+* Contribution patterns
+* Growth over time
+
+5. 🏆 Strengths
+* Clear bullet points of strong areas
+* What stands out to recruiters
+
+6. ⚠️ Weaknesses
+* Be brutally honest
+* What is missing or weak
+
+7. 💼 Hireability Analysis
+* Would this person get hired? Why or why not?
+* What level of companies they can get into (startup / mid / top-tier)
+
+8. 🚀 Improvement Roadmap (VERY IMPORTANT)
+* Exact steps to improve profile
+* What projects to build next
+* What skills to learn
+* Prioritized action plan
+
+9. 💡 Portfolio Suggestions
+* 3–5 specific high-value project ideas
+* Ideas that increase hiring chances FAST
+
+10. 👔 Recruiter Impression Summary
+* Short 3–4 line summary of first impression
+
+11. 📈 Final Verdict
+* Overall level and next milestone
+
+IMPORTANT:
+* Be specific, not generic
+* Avoid vague advice
+* Make it feel like a premium ₹5000 report
+* Be honest and slightly critical where needed
+* Use clear formatting and bullet points
+* Provide concrete examples where possible
+
+Format response using markdown with clear headings and bullet points."""
 
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Using more stable model
+            model="gpt-4",  # Using more capable model for detailed analysis
             messages=[
-                {"role": "system", "content": "You are a career advisor for developers. Provide helpful, actionable advice."},
+                {"role": "system", "content": "You are an expert software engineering career evaluator and technical recruiter. Provide comprehensive, detailed, and actionable career analysis."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=500,
-            temperature=0.7
+            max_tokens=2000,  # Increased for detailed premium report
+            temperature=0.3  # Lower for more consistent, professional output
         )
         
         ai_advice = response.choices[0].message.content

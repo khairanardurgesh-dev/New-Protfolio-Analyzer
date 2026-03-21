@@ -195,8 +195,222 @@
     {% endfor %}
   </ul>
 
-  <h3 class="font-semibold mt-4">AI Career Advice</h3>
-  <p class="bg-blue-50 p-4 rounded mt-2">{{ ai_feedback }}</p>
+  <!-- AI Premium Report Section -->
+  {% if ai_feedback %}
+  <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold text-purple-800">🔍 Premium Career Analysis</h3>
+      <div class="text-sm text-purple-600">AI-Powered Professional Report</div>
+    </div>
+    
+    <!-- Overall Score Card -->
+    <div class="bg-white rounded-lg p-4 mb-4 shadow-md border-l-4 border-purple-500">
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="font-semibold text-gray-800">Overall Developer Score</h4>
+        <span class="text-2xl font-bold text-purple-600" id="overall-score">--/100</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full transition-all duration-500" id="score-progress" style="width: 0%"></div>
+      </div>
+      <p class="text-sm text-gray-600" id="score-explanation">Loading score analysis...</p>
+    </div>
+    
+    <!-- Premium Report Content (Initially Locked) -->
+    <div id="premium-content" class="space-y-4">
+      <!-- This will be populated by JavaScript -->
+      <div class="text-center py-8">
+        <div class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a5 5 0 01-10 0v2a5 5 0 0110 0v2a5 5 0 01-10 0v3a1 1 0 001 1h3a1 1 0 001 1v3a1 1 0 001-1h-3a1 1 0 00-1-1v-3a1 1 0 00-1 1h-3a1 1 0 00-1-1v-3a1 1 0 001-1h3a1 1 0 001-1v-3a1 1 0 001 1h3a1 1 0 001 1v3a5 5 0 0110 0v-2a5 5 0 01-10 0v-2H5z" clip-rule="evenodd"/>
+          </svg>
+          <span class="font-medium">Premium Report Locked</span>
+        </div>
+        <p class="text-gray-600 mt-2">Get detailed analysis with 11 comprehensive sections</p>
+        <button onclick="unlockPremiumReport()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 font-medium shadow-lg">
+          🔓 Unlock Full Report
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hidden AI feedback for JavaScript processing -->
+  <div id="ai-feedback-raw" class="hidden">{{ ai_feedback|safe }}</div>
+  
+  <script>
+    function parseAndDisplayReport() {
+      const rawFeedback = document.getElementById('ai-feedback-raw').textContent;
+      
+      if (!rawFeedback || rawFeedback.trim() === '') {
+        document.getElementById('overall-score').textContent = '--/100';
+        document.getElementById('score-explanation').textContent = 'Unable to load analysis';
+        return;
+      }
+      
+      // Parse the structured report
+      const sections = parseMarkdownSections(rawFeedback);
+      
+      // Update Overall Score
+      updateOverallScore(sections['Overall Developer Score']);
+      
+      // Display premium content
+      displayPremiumContent(sections);
+    }
+    
+    function parseMarkdownSections(content) {
+      const sections = {};
+      const lines = content.split('\n');
+      let currentSection = '';
+      let currentContent = [];
+      
+      for (let line of lines) {
+        if (line.match(/^#{1,3}\s+(.+)/)) {
+          if (currentSection) {
+            sections[currentSection] = currentContent.join('\n');
+          }
+          currentSection = line.replace(/^#{1,3}\s+/, '');
+          currentContent = [];
+        } else if (line.trim()) {
+          currentContent.push(line);
+        }
+      }
+      
+      if (currentSection) {
+        sections[currentSection] = currentContent.join('\n');
+      }
+      
+      return sections;
+    }
+    
+    function updateOverallScore(scoreSection) {
+      if (!scoreSection) return;
+      
+      const scoreMatch = scoreSection.match(/\*(\d+)\/100/);
+      if (scoreMatch) {
+        const score = parseInt(scoreMatch[1]);
+        document.getElementById('overall-score').textContent = `${score}/100`;
+        document.getElementById('score-progress').style.width = `${score}%`;
+        
+        // Update score color based on value
+        const scoreElement = document.getElementById('overall-score');
+        if (score >= 80) {
+          scoreElement.className = 'text-2xl font-bold text-green-600';
+        } else if (score >= 60) {
+          scoreElement.className = 'text-2xl font-bold text-blue-600';
+        } else if (score >= 40) {
+          scoreElement.className = 'text-2xl font-bold text-yellow-600';
+        } else {
+          scoreElement.className = 'text-2xl font-bold text-red-600';
+        }
+      }
+    }
+    
+    function displayPremiumContent(sections) {
+      const premiumContent = document.getElementById('premium-content');
+      
+      let html = '';
+      
+      // Skill Assessment
+      if (sections['🧠 Skill Assessment']) {
+        html += createSectionCard('🧠 Skill Assessment', sections['🧠 Skill Assessment'], 'blue');
+      }
+      
+      // Project Quality
+      if (sections['📁 Project Quality Analysis']) {
+        html += createSectionCard('📁 Project Quality Analysis', sections['📁 Project Quality Analysis'], 'green');
+      }
+      
+      // Consistency & Activity
+      if (sections['📊 Consistency & Activity']) {
+        html += createSectionCard('📊 Consistency & Activity', sections['📊 Consistency & Activity'], 'purple');
+      }
+      
+      // Strengths
+      if (sections['🏆 Strengths']) {
+        html += createSectionCard('🏆 Strengths', sections['🏆 Strengths'], 'emerald');
+      }
+      
+      // Weaknesses
+      if (sections['⚠️ Weaknesses']) {
+        html += createSectionCard('⚠️ Weaknesses', sections['🏆 Weaknesses'], 'red');
+      }
+      
+      // Hireability Analysis
+      if (sections['💼 Hireability Analysis']) {
+        html += createSectionCard('💼 Hireability Analysis', sections['💼 Hireability Analysis'], 'indigo');
+      }
+      
+      // Improvement Roadmap
+      if (sections['🚀 Improvement Roadmap']) {
+        html += createSectionCard('🚀 Improvement Roadmap', sections['🚀 Improvement Roadmap'], 'orange');
+      }
+      
+      // Portfolio Suggestions
+      if (sections['💡 Portfolio Suggestions']) {
+        html += createSectionCard('💡 Portfolio Suggestions', sections['💡 Portfolio Suggestions'], 'pink');
+      }
+      
+      // Recruiter Impression
+      if (sections['👔 Recruiter Impression Summary']) {
+        html += createSectionCard('👔 Recruiter Impression Summary', sections['👔 Recruiter Impression Summary'], 'cyan');
+      }
+      
+      // Final Verdict
+      if (sections['📈 Final Verdict']) {
+        html += createSectionCard('📈 Final Verdict', sections['📈 Final Verdict'], 'violet');
+      }
+      
+      premiumContent.innerHTML = html;
+    }
+    
+    function createSectionCard(title, content, colorClass) {
+      const colorMap = {
+        'blue': 'bg-blue-50 border-blue-200',
+        'green': 'bg-green-50 border-green-200',
+        'purple': 'bg-purple-50 border-purple-200',
+        'emerald': 'bg-emerald-50 border-emerald-200',
+        'red': 'bg-red-50 border-red-200',
+        'indigo': 'bg-indigo-50 border-indigo-200',
+        'orange': 'bg-orange-50 border-orange-200',
+        'pink': 'bg-pink-50 border-pink-200',
+        'cyan': 'bg-cyan-50 border-cyan-200',
+        'violet': 'bg-violet-50 border-violet-200'
+      };
+      
+      const bgColor = colorMap[colorClass] || 'bg-gray-50 border-gray-200';
+      
+      return `
+        <div class="bg-white rounded-lg p-4 shadow-md border-l-4 ${bgColor}">
+          <h4 class="font-semibold text-gray-800 mb-2">${title}</h4>
+          <div class="text-sm text-gray-700 whitespace-pre-wrap">${formatMarkdown(content)}</div>
+        </div>
+      `;
+    }
+    
+    function formatMarkdown(text) {
+      return text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/^- (.+)$/gm, '<li class="ml-2">• $1</li>')
+        .replace(/^\d+\.\s+(.+)$/gm, '<li class="ml-2">$1. $2</li>')
+        .replace(/\n\n/g, '</p><p class="mb-2">')
+        .replace(/\n/g, '<br>');
+    }
+    
+    function unlockPremiumReport() {
+      // This could be used for a premium feature in the future
+      alert('Premium reports are included with your analysis! The full report is now displayed.');
+    }
+    
+    // Parse and display report when page loads
+    document.addEventListener('DOMContentLoaded', parseAndDisplayReport);
+  </script>
+  {% else %}
+  <!-- Fallback when no AI feedback -->
+  <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+    <h3 class="font-semibold text-yellow-800 mb-2">🤖 AI Analysis Unavailable</h3>
+    <p class="text-yellow-700">Advanced AI analysis is currently unavailable. Upgrade to Pro for detailed career insights.</p>
+  </div>
+  {% endif %}
 
   </div>
   {% endif %}
