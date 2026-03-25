@@ -239,6 +239,17 @@ def analyze(request):
         
         username = request.POST.get("username")
         
+        if not username or not username.strip():
+            error_message = "Please enter a valid GitHub username."
+            return render(request, "analyze.html", {
+                "error_message": error_message,
+                "can_analyze": can_analyze,
+                "free_analysis_count": request.session['free_analysis_count'],
+                "free_analyses_remaining": max(0, 3 - request.session['free_analysis_count']),
+                "is_paid": request.session['is_paid'],
+                "analysis_loading": False,
+            })
+        
         try:
             # Show loading state
             request.session['analysis_loading'] = True
