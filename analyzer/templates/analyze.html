@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +11,8 @@
 <nav class="bg-white border-b border-gray-200 shadow-sm">
   <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-        </svg>
+      <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
+        <img src="{% static 'images/logo.png' %}" alt="CodePulse Logo" class="w-6 h-6 object-contain">
       </div>
       <div class="font-bold text-xl text-blue-600">CodePulse</div>
     </div>
