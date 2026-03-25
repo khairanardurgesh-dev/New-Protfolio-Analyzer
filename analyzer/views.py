@@ -50,6 +50,15 @@ except ImportError:
 import hashlib
 import json
 
+def test_static(request):
+    """Test static file serving"""
+    from django.conf import settings
+    context = {
+        'STATIC_URL': getattr(settings, 'STATIC_URL', '/static/'),
+        'logo_path': f"{getattr(settings, 'STATIC_URL', '/static/')}images/logo.png"
+    }
+    return render(request, 'test_static.html', context)
+
 def test_view(request):
     """Simple test view to debug issues"""
     return JsonResponse({
@@ -69,57 +78,90 @@ def landing(request):
             'user_authenticated': request.user.is_authenticated,
             'features': [
                 {
-                    'icon': '',
+                    'icon': '⚡',
                     'title': 'Lightning Fast Analysis',
-                    'description': 'Get comprehensive GitHub portfolio analysis in under 30 seconds with our advanced AI algorithms.'
+                    'description': 'Get comprehensive GitHub portfolio analysis in under 30 seconds with our advanced AI algorithms.',
+                    'gradient': 'from-yellow-400 to-orange-500'
                 },
                 {
-                    'icon': '',
+                    'icon': '🎯',
                     'title': 'Actionable Insights',
-                    'description': 'Receive detailed feedback on your coding patterns, project quality, and career opportunities.'
+                    'description': 'Receive detailed feedback on your coding patterns, project quality, and career opportunities.',
+                    'gradient': 'from-blue-400 to-indigo-500'
                 },
                 {
-                    'icon': '',
+                    'icon': '📊',
                     'title': 'Advanced Analytics',
-                    'description': 'Track your progress over time with detailed metrics, language breakdowns, and skill assessments.'
+                    'description': 'Track your progress over time with detailed metrics, language breakdowns, and skill assessments.',
+                    'gradient': 'from-green-400 to-teal-500'
                 },
                 {
-                    'icon': '',
+                    'icon': '🤖',
                     'title': 'AI-Powered Recommendations',
-                    'description': 'Get personalized career advice and improvement suggestions from our intelligent AI system.'
+                    'description': 'Get personalized career advice and improvement suggestions from our intelligent AI system.',
+                    'gradient': 'from-purple-400 to-pink-500'
                 },
                 {
-                    'icon': '',
+                    'icon': '🔒',
                     'title': 'Secure & Private',
-                    'description': 'Your data is encrypted and secure. We never share your portfolio information with third parties.'
+                    'description': 'Your data is encrypted and secure. We never share your portfolio information with third parties.',
+                    'gradient': 'from-red-400 to-rose-500'
                 },
                 {
-                    'icon': '',
+                    'icon': '🌟',
                     'title': 'Trusted by Developers',
-                    'description': 'Join thousands of developers who have improved their GitHub profiles and career prospects.'
+                    'description': 'Join thousands of developers who have improved their GitHub profiles and career prospects.',
+                    'gradient': 'from-indigo-400 to-purple-500'
                 }
             ],
             'testimonials': [
                 {
-                    'name': 'Sarah Chen',
-                    'role': 'Senior Frontend Developer',
-                    'company': 'Tech Corp',
-                    'content': 'CodePulse helped me identify gaps in my portfolio and land my dream job. The insights were invaluable!',
-                    'avatar': ''
+                    'name': 'Rahul Sharma',
+                    'role': 'Senior Full Stack Developer',
+                    'company': 'Microsoft India',
+                    'content': 'CodePulse transformed my GitHub profile completely. The AI insights helped me land my dream job at Microsoft. Best investment I ever made!',
+                    'avatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+                    'rating': 5
                 },
                 {
-                    'name': 'Alex Rodriguez',
-                    'role': 'Full Stack Engineer',
-                    'company': 'StartupXYZ',
-                    'content': 'The AI recommendations spot-on. I improved my GitHub profile and saw a 300% increase in recruiter views.',
-                    'avatar': ''
+                    'name': 'Priya Patel',
+                    'role': 'Frontend Engineer',
+                    'company': 'Google India',
+                    'content': 'The detailed portfolio analysis and career roadmap were game-changers. I improved my coding skills and got promoted within 6 months!',
+                    'avatar': 'https://images.unsplash.com/photo-1494790108755-2616b332c1ca?w=150&h=150&fit=crop&crop=face',
+                    'rating': 5
                 },
                 {
-                    'name': 'Emily Johnson',
+                    'name': 'Amit Kumar',
                     'role': 'DevOps Engineer',
-                    'company': 'CloudTech',
-                    'content': 'Best portfolio analysis tool I have used. The detailed reports helped me negotiate a better salary.',
-                    'avatar': ''
+                    'company': 'Infosys',
+                    'content': 'As someone transitioning to senior roles, CodePulse gave me the exact insights I needed. The skill assessment was spot-on!',
+                    'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+                    'rating': 5
+                },
+                {
+                    'name': 'Sneha Reddy',
+                    'role': 'Backend Developer',
+                    'company': 'TCS Digital',
+                    'content': 'The AI recommendations helped me optimize my GitHub profile. Recruiters started reaching out within weeks!',
+                    'avatar': 'https://images.unsplash.com/photo-1580489945145-fd1d0259bd0d?w=150&h=150&fit=crop&crop=face',
+                    'rating': 5
+                },
+                {
+                    'name': 'Vikram Singh',
+                    'role': 'Software Architect',
+                    'company': 'Wipro',
+                    'content': 'CodePulse enterprise features are unmatched. The career insights helped me transition from developer to architect role.',
+                    'avatar': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+                    'rating': 5
+                },
+                {
+                    'name': 'Anjali Nair',
+                    'role': 'Data Scientist',
+                    'company': 'Accenture',
+                    'content': 'The portfolio analysis helped me showcase my ML projects better. I landed my first data science job thanks to CodePulse!',
+                    'avatar': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face',
+                    'rating': 5
                 }
             ],
             'stats': [

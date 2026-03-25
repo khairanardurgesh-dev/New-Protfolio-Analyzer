@@ -21,6 +21,7 @@ from analyzer.views import landing, analyze, signup, login_view, logout_view, hi
 
 urlpatterns = [
     path("", views.landing, name="landing"),
+    path('test-static/', views.test_static, name='test_static'),
     path('test/', test_view, name='test'),
     path('admin/', admin.site.urls),
     path('analyze/', analyze, name='analyze'),

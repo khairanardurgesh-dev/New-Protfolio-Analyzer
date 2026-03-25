@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Static Files Test</title>
+</head>
+<body>
+    <h1>Static Files Debug Test</h1>
+    
+    <h2>Logo Test:</h2>
+    <img src="{% static 'images/logo.png' %}" alt="Logo Test" style="border: 2px solid red; padding: 10px;">
+    <p>Path: {% static 'images/logo.png' %}</p>
+    
+    <h2>Direct Path Test:</h2>
+    <img src="/static/images/logo.png" alt="Direct Path Test" style="border: 2px solid blue; padding: 10px;">
+    <p>Direct URL: /static/images/logo.png</p>
+    
+    <h2>Debug Info:</h2>
+    <p>STATIC_URL: {{ STATIC_URL }}</p>
+    <p>Current time: {% now "Y-m-d H:i:s" %}</p>
+</body>
+</html>

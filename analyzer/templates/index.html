@@ -107,7 +107,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden shadow-lg">
-                        <img src="{% static 'images/logo.png' %}" alt="CodePulse Logo" class="w-7 h-7 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img src="{% static 'images/logo.svg' %}" alt="CodePulse Logo" class="w-7 h-7 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="w-7 h-7 flex items-center justify-center text-white font-bold text-lg" style="display:none;">
                             CP
                         </div>
@@ -264,8 +264,8 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {% for feature in features %}
                 <div class="bg-white rounded-2xl p-8 shadow-lg card-hover border border-gray-100">
-                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                        <span class="text-3xl">{{ feature.icon }}</span>
+                    <div class="w-16 h-16 bg-gradient-to-r {{ feature.gradient }} rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                        <span class="text-4xl">{{ feature.icon }}</span>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-4">{{ feature.title }}</h3>
                     <p class="text-gray-600 leading-relaxed">{{ feature.description }}</p>
@@ -283,24 +283,27 @@
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">See what developers at leading companies are saying about CodePulse</p>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {% for testimonial in testimonials %}
                 <div class="testimonial-card rounded-2xl p-8 shadow-lg card-hover">
                     <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl mr-4">
-                            {{ testimonial.avatar }}
-                        </div>
+                        <img src="{{ testimonial.avatar }}" alt="{{ testimonial.name }}" class="w-12 h-12 rounded-full object-cover mr-4 border-2 border-blue-500">
                         <div>
                             <div class="font-bold text-gray-900">{{ testimonial.name }}</div>
                             <div class="text-sm text-gray-600">{{ testimonial.role }}</div>
                             <div class="text-sm text-blue-600 font-medium">{{ testimonial.company }}</div>
                         </div>
                     </div>
-                    <div class="text-gray-700 leading-relaxed italic">"{{ testimonial.content }}"</div>
-                    <div class="flex mt-4">
+                    <div class="text-gray-700 leading-relaxed italic mb-4">"{{ testimonial.content }}"</div>
+                    <div class="flex items-center gap-2">
                         {% for i in "12345" %}
-                        <i class="fas fa-star text-yellow-400"></i>
+                            {% if i <= testimonial.rating %}
+                                <i class="fas fa-star text-yellow-400"></i>
+                            {% else %}
+                                <i class="fas fa-star text-gray-300"></i>
+                            {% endif %}
                         {% endfor %}
+                        <span class="text-sm text-gray-600 ml-2">({{ testimonial.rating }}/5)</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -371,9 +374,9 @@
                 <div>
                     <div class="flex items-center gap-2 mb-4">
                         <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
-                            <img src="{% static 'images/logo.png' %}" alt="CodePulse Logo" class="w-6 h-6 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <img src="{% static 'images/logo.svg' %}" alt="CodePulse Logo" class="w-6 h-6 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="w-6 h-6 flex items-center justify-center text-white font-bold text-sm" style="display:none;">
-                                CP
+                              CP
                             </div>
                         </div>
                         <div class="font-bold text-xl">CodePulse</div>
