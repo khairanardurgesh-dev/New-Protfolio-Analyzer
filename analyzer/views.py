@@ -83,14 +83,14 @@ def analyze(request):
     profile = None
     error_message = None
     
-    # Initialize session variables
-    if 'free_used' not in request.session:
-        request.session['free_used'] = False
+    # Initialize session variables for 3 free analyses
+    if 'free_analysis_count' not in request.session:
+        request.session['free_analysis_count'] = 0
     if 'is_paid' not in request.session:
         request.session['is_paid'] = False
     
-    # Check if user can analyze
-    can_analyze = not request.session['free_used'] or request.session['is_paid']
+    # Check if user can analyze (3 free or paid)
+    can_analyze = request.session['free_analysis_count'] < 3 or request.session['is_paid']
     
     if request.method == "POST":
         if not can_analyze:
@@ -125,11 +125,11 @@ def analyze(request):
                         print(f"❌ AI analysis failed: {e}")
                         ai_feedback = f"AI analysis encountered an error: {str(e)}"
             
-            # Mark free analysis as used
-            if not request.session['free_used']:
-                request.session['free_used'] = True
-                request.session['first_analysis_username'] = username
-                print(f"🔓 Free analysis used for {username}")
+            # Increment free analysis count
+            if not request.session['is_paid']:
+                request.session['free_analysis_count'] += 1
+                request.session[f'analysis_{request.session["free_analysis_count"]}_username'] = username
+                print(f"🔓 Free analysis {request.session['free_analysis_count']}/3 used for {username}")
             
             request.session['analysis_loading'] = False
             request.session.modified = True
@@ -148,7 +148,8 @@ def analyze(request):
         "archives": [],  # Simplified for debugging
         "user_profile": None,  # Simplified for debugging
         "can_analyze": can_analyze,
-        "free_used": request.session['free_used'],
+        "free_analysis_count": request.session['free_analysis_count'],
+        "free_analyses_remaining": max(0, 3 - request.session['free_analysis_count']),
         "is_paid": request.session['is_paid'],
         "analysis_loading": request.session.get('analysis_loading', False),
     })
