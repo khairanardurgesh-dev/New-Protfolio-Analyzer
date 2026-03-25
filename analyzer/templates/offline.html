@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - CodePulse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .offline-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen flex items-center justify-center px-4">
+    <div class="max-w-md w-full">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg floating">
+                <img src="{% static 'images/logo.svg' %}" alt="CodePulse Logo" class="w-14 h-14 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-14 h-14 flex items-center justify-center text-white font-bold text-2xl" style="display:none;">
+                    CP
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">CodePulse</h1>
+            <p class="text-gray-600">You're currently offline</p>
+        </div>
+
+        <!-- Offline Message -->
+        <div class="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 offline-animation">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 2.554a1 1 0 01.916.558l7.425 4.84a1 1 0 011.418 1.144l-4.16 4.223a1 1 0 01-1.05.042l-4.5-4.25a1 1 0 01-.032-1.418L8.111 2.554zM15 8.5a1 1 0 100 2 1 1 0 000-2z"></path>
+                    </svg>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">No Internet Connection</h2>
+                <p class="text-gray-600 mb-6">Please check your internet connection and try again.</p>
+                
+                <div class="space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-blue-900 mb-2">What you can do offline:</h3>
+                        <ul class="text-sm text-blue-800 space-y-1">
+                            <li>• View previously cached analyses</li>
+                            <li>• Browse cached pages</li>
+                            <li>• Access your profile information</li>
+                        </ul>
+                    </div>
+                    
+                    <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m16 9-5v5m-1.172-2a4 4 0 00-1.414-1.414M5 14a4 4 0 00-1.414 1.414L5 14"></path>
+                        </svg>
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Available Offline -->
+        <div class="mt-8 text-center">
+            <div class="inline-flex items-center gap-6 text-sm text-gray-500">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                        <path d="M4 4a1 1 0 011-1h2a1 1 0 110 2H5a1 1 0 01-1-1z"/>
+                        <path d="M6 8a1 1 0 011-1h2a1 1 0 110 2H7a1 1 0 01-1-1z"/>
+                        <path d="M8 12a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                    </svg>
+                    <span>Offline Mode</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 1 1 0 000 2v4a1 1 0 102 2v4a1 1 0 11-2 0V9a1 1 0 112 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Auto-sync when online</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check online status periodically
+        setInterval(() => {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            }
+        }, 5000);
+        
+        // Listen for online event
+        window.addEventListener('online', () => {
+            console.log('🌐 Back online!');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

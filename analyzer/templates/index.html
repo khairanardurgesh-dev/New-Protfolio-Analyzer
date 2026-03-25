@@ -9,6 +9,15 @@
     <meta name="author" content="CodePulse Team">
     <title>CodePulse - Advanced AI Portfolio Analysis | Trusted by Developers Worldwide</title>
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#3b82f6">
+    
+    <!-- Apple touch icon -->
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.svg">
+    
     <!-- Professional favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
     
@@ -425,6 +434,89 @@
             </div>
         </div>
     </footer>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('🔄 New service worker found');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 Service Worker updated');
+                                    // Show update notification
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('❌ Service Worker registration failed:', error);
+                    });
+            });
+        } else {
+            console.log('⚠️ Service Worker not supported');
+        }
+
+        // PWA Install Handler
+        let deferredPrompt = null;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('📱 Install prompt detected');
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            // Remove existing button
+            const existingBtn = document.getElementById('pwa-install-btn');
+            if (existingBtn) existingBtn.remove();
+
+            // Create install button
+            const installBtn = document.createElement('div');
+            installBtn.id = 'pwa-install-btn';
+            installBtn.className = 'fixed bottom-4 right-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 z-50 flex items-center gap-2';
+            installBtn.innerHTML = `
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l2.293-2.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                </svg>
+                <span class="font-medium">Install CodePulse</span>
+            `;
+            
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('📱 Install outcome:', outcome);
+                
+                if (outcome === 'accepted') {
+                    installBtn.remove();
+                }
+                deferredPrompt = null;
+            });
+            
+            document.body.appendChild(installBtn);
+        }
+
+        // Hide install button if app is already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('📱 App is already installed');
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) installBtn.remove();
+        }
+    </script>
 
     <script>
         function toggleMobileMenu() {

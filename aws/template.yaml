@@ -1,0 +1,202 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CodePulse - Serverless GitHub Portfolio Analysis'
+Parameters:
+  TableName:
+    Type: String
+    Default: 'codepulse-analyses'
+    Description: 'DynamoDB table name for storing analyses'
+  GitHubToken:
+    Type: String
+    Default: ''
+    Description: 'GitHub API token (optional)'
+    NoEcho: true
+
+Resources:
+  # DynamoDB Table for Analyses
+  AnalysesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: username
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: username
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  # Lambda Function for Analysis
+  AnalysisFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: 'codepulse-analysis'
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Code:
+        ZipFile: !Sub |
+          import json
+          import os
+          import boto3
+          import requests
+          from botocore.exceptions import ClientError
+
+          # AWS Configuration
+          AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
+          DYNAMODB_TABLE = os.getenv('DYNAMODB_TABLE', 'codepulse-analyses')
+          GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', '')
+
+          # Initialize AWS clients
+          dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
+          
+          def lambda_handler(event, context):
+              """AWS Lambda handler for GitHub portfolio analysis"""
+              
+              # CORS headers
+              headers = {
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Headers': 'Content-Type',
+                  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                  'Content-Type': 'application/json'
+              }
+              
+              # Handle OPTIONS request
+              if event['httpMethod'] == 'OPTIONS':
+                  return {
+                      'statusCode': 200,
+                      'headers': headers,
+                      'body': json.dumps({'message': 'CORS preflight'})
+                  }
+              
+              try:
+                  # Parse request
+                  if event['httpMethod'] == 'POST':
+                      body = json.loads(event.get('body', '{}'))
+                      username = body.get('username', '').strip()
+                      
+                      if not username:
+                          return {
+                              'statusCode': 400,
+                              'headers': headers,
+                              'body': json.dumps({'error': 'Username is required'})
+                          }
+                      
+                      # Get GitHub profile
+                      profile_data = get_github_profile(username)
+                      if not profile_data:
+                          return {
+                              'statusCode': 404,
+                              'headers': headers,
+                              'body': json.dumps({'error': 'GitHub profile not found'})
+                          }
+                      
+                      # Get GitHub repositories
+                      repos_data = get_github_repos(username)
+                      if not repos_data:
+                          return {
+                              'statusCode': 500,
+                              'headers': headers,
+                              'body': json.dumps({'error': 'Failed to fetch repositories'})
+                          }
+                      
+                      # Analyze portfolio
+                      analysis = analyze_portfolio(repos_data)
+                      
+                      # Save to DynamoDB
+                      save_analysis(username, analysis, context)
+                      
+                      return {
+                          'statusCode': 200,
+                          'headers': headers,
+                          'body': json.dumps({
+                              'profile': profile_data,
+                              'analysis': analysis,
+                              'timestamp': context.aws_request_id
+                          })
+                      }
+                  
+                  elif event['httpMethod'] == 'GET':
+                      # Get analysis history
+                      username = event.get('queryStringParameters', {}).get('username', '')
+                      if username:
+                          history = get_analysis_history(username)
+                          return {
+                              'statusCode': 200,
+                              'headers': headers,
+                              'body': json.dumps({'history': history})
+                          }
+                  
+                  except Exception as e:
+                      print(f"❌ Lambda error: {str(e)}")
+                      return {
+                          'statusCode': 500,
+                          'headers': headers,
+                          'body': json.dumps({'error': 'Internal server error'})
+                      }
+          
+          # Helper functions (continued in next section)
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          - Key: AWS_REGION
+            Value: !Ref AWS::Region
+          - Key: DYNAMODB_TABLE
+            Value: !Ref TableName
+          - Key: GITHUB_TOKEN
+            Value: !Ref GitHubToken
+
+  # API Gateway
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: 'codepulse-api'
+      Description: 'CodePulse Analysis API'
+      EndpointConfiguration: REGIONAL
+      BinaryMediaTypes: []
+      MinimumCompressionSize: 0
+      
+  # API Gateway Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: 'prod'
+      
+  # API Gateway Stage
+  ApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref ApiGateway
+      DeploymentId: !Ref ApiDeployment
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          LoggingLevel: INFO
+          DataTraceEnabled: true
+          ThrottlingBurstLimit: 100
+          ThrottlingRateLimit: 50
+
+  # Lambda Permission for API Gateway
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt AnalysisFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*/*'
+
+Outputs:
+  ApiEndpoint:
+    Description: 'API Gateway endpoint URL'
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod'
