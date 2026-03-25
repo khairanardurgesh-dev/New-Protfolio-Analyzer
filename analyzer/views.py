@@ -128,7 +128,7 @@ def landing(request):
                     'role': 'Frontend Engineer',
                     'company': 'Google India',
                     'content': 'The detailed portfolio analysis and career roadmap were game-changers. I improved my coding skills and got promoted within 6 months!',
-                    'avatar': 'https://images.unsplash.com/photo-1494790108755-2616b332c1ca?w=150&h=150&fit=crop&crop=face',
+                    'avatar': 'https://images.unsplash.com/photo-1438761681033-6d21b316db6?w=150&h=150&fit=crop&crop=face&auto=compress',
                     'rating': 5
                 },
                 {
@@ -144,7 +144,7 @@ def landing(request):
                     'role': 'Backend Developer',
                     'company': 'TCS Digital',
                     'content': 'The AI recommendations helped me optimize my GitHub profile. Recruiters started reaching out within weeks!',
-                    'avatar': 'https://images.unsplash.com/photo-1580489945145-fd1d0259bd0d?w=150&h=150&fit=crop&crop=face',
+                    'avatar': 'https://images.unsplash.com/photo-1489424746504-440561b2d31?w=150&h=150&fit=crop&crop=face&auto=compress',
                     'rating': 5
                 },
                 {
