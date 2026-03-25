@@ -30,9 +30,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['new-protfolio-analyzer.onrender.com']
+ALLOWED_HOSTS = ['new-protfolio-analyzer.onrender.com', 'web-production-14461.up.railway.app', '*.up.railway.app']
 
 
 # Application definition
@@ -152,5 +152,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://new-protfolio-analyzer.onrender.com"
+    "https://new-protfolio-analyzer.onrender.com",
+    "https://web-production-14461.up.railway.app",
+    "https://*.up.railway.app"
 ]
