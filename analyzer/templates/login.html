@@ -31,7 +31,10 @@
   <div class="text-center mb-8">
     <div class="flex items-center justify-center gap-2 mb-4">
       <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
-        <img src="{% static 'images/logo.png' %}" alt="CodePulse Logo" class="w-7 h-7 object-contain">
+        <img src="{% static 'images/logo.png' %}" alt="CodePulse Logo" class="w-7 h-7 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="w-7 h-7 flex items-center justify-center text-white font-bold text-lg" style="display:none;">
+          CP
+        </div>
       </div>
       <div class="font-bold text-2xl text-gray-900">CodePulse</div>
     </div>

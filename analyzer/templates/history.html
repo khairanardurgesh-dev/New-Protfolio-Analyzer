@@ -25,7 +25,10 @@
     <div class="flex justify-between items-center h-16">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
-          <img src="{% static 'images/logo.png' %}" alt="CodePulse Logo" class="w-6 h-6 object-contain">
+          <img src="{% static 'images/logo.png' %}" alt="CodePulse Logo" class="w-6 h-6 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="w-6 h-6 flex items-center justify-center text-white font-bold text-sm" style="display:none;">
+            CP
+          </div>
         </div>
         <div class="font-bold text-xl text-gray-900">CodePulse</div>
       </div>
