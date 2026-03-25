@@ -66,7 +66,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 
 
-ALLOWED_HOSTS = ['new-protfolio-analyzer.onrender.com', 'web-production-14461.up.railway.app', '*.up.railway.app']
+ALLOWED_HOSTS = ['new-protfolio-analyzer.onrender.com', 'web-production-14461.up.railway.app', '*.up.railway.app', 'localhost', '127.0.0.1']
 
 
 

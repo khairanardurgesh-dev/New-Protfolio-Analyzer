@@ -1,13 +1,13 @@
 services:
   # Web Service
   - type: web
-    name: devportfolio
+    name: codepulse
     env: python
     plan: free
-    buildCommand: "pip install -r requirements_prod.txt && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py check --deploy"
-    startCommand: "python start_gunicorn.py && echo '=== STARTUP SCRIPT EXECUTED ===' && sleep 5 && python start_gunicorn.py"
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py check --deploy"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
     healthCheckPath: /
-    autoDeploy: false
+    autoDeploy: true
     
     # Environment Variables (set these in Render dashboard)
     envVars:
@@ -17,7 +17,7 @@ services:
         value: false
       - key: DATABASE_URL
         fromDatabase:
-          name: devportfolio-db
+          name: codepulse-db
           property: connectionString
       - key: OPENAI_API_KEY
         sync: false
@@ -28,13 +28,13 @@ services:
       - key: RAZORPAY_SECRET
         sync: false
       - key: ALLOWED_HOSTS
-        value: devportfolio.onrender.com
+        value: new-protfolio-analyzer.onrender.com
       - key: DJANGO_SETTINGS_MODULE
-        value: "config.absolute_minimal_settings"
+        value: "config.settings"
 
   # PostgreSQL Database
   - type: pserv
-    name: devportfolio-db
+    name: codepulse-db
     plan: free
     databaseName: portfolio_analyzer
-    user: devportfolio
+    user: codepulse
